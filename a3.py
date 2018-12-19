@@ -35,34 +35,53 @@ def plotcube(pt):
 
     def angle_between(v1, v2):
         """ Returns the angle in radians between vectors 'v1' and 'v2' """
-        v1_u = unit_vector(v1)
-        v2_u = unit_vector(v2)
+        v1_u = unit_vector(v1[:,1])
+        v2_u = unit_vector(v2[:,1])
         return np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
+    
+    def inner_product(v1,v2):
+        return np.inner(v1[:,1],v2[:,1])
+
+    def norm_not_visible(v):
+        if(v[0,1] >0 and v[1,1] >0):
+            return False
+        else:
+            return True
 
     def visible(p1, p2, p3):
         """ output if the face is visible."""
         """ get the 3d coordinate of each points """
         """ then covert to 2d coordinates """
-        point_1 = np.dot(T,points[:,p1])
-        point_2 = np.dot(T,points[:,p2])
-        point_3 = np.dot(T,points[:,p3])
+        origin = np.array([[0],[0],[0]])
+        point_1 = np.dot(T, np.concatenate((origin,points[:,p1].reshape(-1,1)), axis=1) )
+        point_2 = np.dot(T, np.concatenate((origin,points[:,p2].reshape(-1,1)), axis=1) )
+        point_3 = np.dot(T, np.concatenate((origin,points[:,p3].reshape(-1,1)), axis=1) )
         """ calculate v1,v2 using p3 as origin """
         v1 = point_1 - point_3
         v2 = point_2 - point_3
-        norm = np.cross(v1, v2)
-        """ 若norm和x,y,z任一axis平行且方向相同, 則 visible """
-        """ 平行定義: 夾角0度 """
-        x_axis = np.dot(T, np.array([1],[0],[0]))
-        y_axis = np.dot(T, np.array([0],[1],[0]))
-        z_axis = np.dot(T, np.array([0],[0],[1]))
-        if(angle_between(norm,x_axis) == 0 ):
-            return True
-        elif(angle_between(norm,y_axis) == 0):
-            return True
-        elif(angle_between(norm,y_axis) == 0):
-            return True
-        else:
+
+        """ IMPORTANT OPERATION"""
+        norm = np.outer(v1[:,1], v2[:,1])
+        viewpoint=np.dot(T,np.array([[0,1/2], [0,1/2], [0,m.sqrt(2)/2]])) - point_3
+
+        print("face:",p1,p2,p3,sep=' ')
+        print("angle bewtween norm and viewpoint: ", angle_between(norm,viewpoint))
+        print("inner product: ", inner_product(norm,viewpoint))
+        print("norm: ", norm)
+
+        if(angle_between(norm,viewpoint) > 3.14159 and norm_not_visible(norm)):
+            print("face:",p1,p2,p3,"is not visible",sep=' ')
+            print()
             return False
+        elif(angle_between(norm,viewpoint) == 0):
+            print("face:",p1,p2,p3,"is not visible",sep=' ')
+            print()
+            return False
+        else:
+            print()
+            return True
+
+        return True
         
     def mapRectangle(p1, p2, p3, p4):
         """return two 1D arrays: X list and Y list from
@@ -73,7 +92,6 @@ def plotcube(pt):
         
     # plot face 1
     X1, Y1 = mapRectangle(0, 1, 3, 2)
-    print(X1, Y1)
     if(visible(0, 1, 3)):
         plt.plot(X1,Y1)
 
