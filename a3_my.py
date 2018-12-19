@@ -4,10 +4,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math as m
 
-# 8 points of a cube
-points = np.array([[ 0, 0, 0, 0, 1, 1, 1, 1],
-                   [ 0, 0, 1, 1, 0, 0, 1, 1],
-                   [ 0, 1, 0, 1, 0, 1, 0, 1]])
+# 6 points of a crystal
+points = np.array([[ 0, 0, 1, 1, 1/2, 1/2, 1/2],
+                   [ 0, 1, 1, 0, m.sqrt(3)/2, m.sqrt(3)/2],
+                   [ 0, 0, 0, 0, 2, -2]])
 
 def plotcube(pt):
     """plot a cube described by pt. 
@@ -18,6 +18,7 @@ def plotcube(pt):
     
     def drawAxis():
         """ draw the axes of the 3D space"""
+        """ 畫x,y,z坐標軸 """
         X = np.dot(T, [[0,1.5],[0,0],[0,0]])
         Y = np.dot(T, [[0,0],[0,1.5],[0,0]])
         Z = np.dot(T, [[0,0],[0,0],[0,1.5]])
@@ -82,7 +83,7 @@ def plotcube(pt):
 
         return True
         
-    def mapRectangle(p1, p2, p3, p4):
+    def mapRectangle(p1, p2, p3):
         """return two 1D arrays: X list and Y list from
            points[:, p1], points[:,p2], points[:, p3], points[:, p4]"""
         A = np.dot(T, points[:, [p1,p2,p3,p4,p1]])
