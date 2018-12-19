@@ -6,9 +6,8 @@ import math as m
 
 # 8 points of a cube
 points = np.array([[ 0, 0, 0, 0, 1, 1, 1, 1],
-                   [ 0, 0, 2, 1, 0, 0, 1, 1],
+                   [ 0, 0, 1, 1, 0, 0, 1, 1],
                    [ 0, 1, 0, 1, 0, 1, 0, 1]])
-
 
 def plotcube(pt):
     """plot a cube described by pt. 
@@ -19,6 +18,7 @@ def plotcube(pt):
     
     def drawAxis():
         """ draw the axes of the 3D space"""
+        """ 畫x,y,z坐標軸 """
         X = np.dot(T, [[0,1.5],[0,0],[0,0]])
         Y = np.dot(T, [[0,0],[0,1.5],[0,0]])
         Z = np.dot(T, [[0,0],[0,0],[0,1.5]])
@@ -29,10 +29,40 @@ def plotcube(pt):
         plt.text(Y[0,1], Y[1,1], r'y', fontsize=20)
         plt.text(Z[0,1]-0.1, Z[1,1], r'z', fontsize=20)
 
+    def unit_vector(vector):
+        """ Returns the unit vector of the vector.  """
+        return vector / np.linalg.norm(vector)
+
+    def angle_between(v1, v2):
+        """ Returns the angle in radians between vectors 'v1' and 'v2' """
+        v1_u = unit_vector(v1)
+        v2_u = unit_vector(v2)
+        return np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
+
     def visible(p1, p2, p3):
-        """output if the face is visible."""
-        # write your code here...
-        return True
+        """ output if the face is visible."""
+        """ get the 3d coordinate of each points """
+        """ then covert to 2d coordinates """
+        point_1 = np.dot(T,points[:,p1])
+        point_2 = np.dot(T,points[:,p2])
+        point_3 = np.dot(T,points[:,p3])
+        """ calculate v1,v2 using p3 as origin """
+        v1 = point_1 - point_3
+        v2 = point_2 - point_3
+        norm = np.cross(v1, v2)
+        """ 若norm和x,y,z任一axis平行且方向相同, 則 visible """
+        """ 平行定義: 夾角0度 """
+        x_axis = np.dot(T, np.array([1],[0],[0]))
+        y_axis = np.dot(T, np.array([0],[1],[0]))
+        z_axis = np.dot(T, np.array([0],[0],[1]))
+        if(angle_between(norm,x_axis) == 0 ):
+            return True
+        elif(angle_between(norm,y_axis) == 0):
+            return True
+        elif(angle_between(norm,y_axis) == 0):
+            return True
+        else:
+            return False
         
     def mapRectangle(p1, p2, p3, p4):
         """return two 1D arrays: X list and Y list from
